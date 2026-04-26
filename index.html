@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云染学馆 - 传统扎染智能模拟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&Noto+Serif+SC:wght@400,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header-bg {
+            position: relative;
+            height: 180px;
+            background: linear-gradient(45deg, #4a6fa5, #166088, #4a6fa5);
+            overflow: hidden;
+        }
+        
+        .header-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,205,0.1) 2px, transparent 3px),
+                radial-gradient(circle at 60% 40%, rgba(255,255,255,0.15) 3px, transparent 4px),
+                radial-gradient(circle at 40% 70%, rgba(255,255,255,0.1) 5px, transparent 5px),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 2px, transparent 3px);
+            background-size: 100px 100px;
+        }
+        
+        .title-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding-top: 40px;
+        }
+        
+        .main-title {
+            font-family: 'Ma+Shan+Zheng', cursive;
+            font-size: 3.5rem;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+        
+        .sidebar h2 {
+            color: #2c5282;
+            border-bottom: 3px solid #4299e1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .nav-list {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 15px;
+        }
+        
+        .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: none;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 1.1rem;
+            color: #2d3248;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 10%);
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(66, 153, 255, 0.2);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #4299e1 0%, #318ce7 100%);
+            color: white;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            color: #2c5282;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #cbd5e0;
+        }
+
+        .tool-img {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .section-video {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .control-panel {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .step-indicator {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        
+        .step.active {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .fold-options, .tool-options {
+            margin-bottom: 20px;
+        }
+        
+        .option-title {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .fold-btn, .tool-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            padding-left: 40px;
+        }
+        
+        .fold-btn:before, .tool-btn:before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e2e8f0;
+        }
+        
+        .fold-btn.selected:before, .tool-btn.selected:before {
+            background: #4299e1;
+        }
+        
+        .fold-btn:hover, .tool-btn:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+        
+        .fold-btn.selected, .tool-btn.selected {
+            background: #ebf8ff;
+            border-color: #4299e1;
+            color: #2c5282;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover:not(:disabled) {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .action-btn:disabled {
+            background: #cbd5e0 !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important;
+        }
+        
+        .fabric-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .fabric-container {
+            width: 100%;
+            height: 400px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px dashed #cbd5e0;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .fabric-base {
+            position: absolute;
+            background: white;
+            border: 1px solid #a0ec0;
+            transition: all 0.5s ease;
+        }
+        
+        .fabric-base.z-fold {
+            width: 75px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .fabric-base.center-fold {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            clip-path: polygon(50% 0%, 100% 10%, 0% 10%);
+        }
+        
+        .fabric-base.expanded {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            clip-path: none;
+        }
+        
+        .tie-line {
+            position: absolute;
+            background: #d69e2e;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .temp-line {
+            position: absolute;
+            background: #d69e2e;
+            border-radius: 2px;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .white-area {
+            position: absolute;
+            background: white;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 3;
+        }
+        
+        .status-info {
+            text-align: center;
+            color: #4a5568;
+            font-style: italic;
+            min-height: 24px;
+        }
+        
+        .instruction {
+            background: #f0fff4;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #48bb78;
+            margin: 20px 0;
+            color: #276749;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bg">
+        <div class="title-container">
+            <h1 class="main-title">云染学馆</h1>
+            <p class="subtitle">传统扎染艺术学习智能体 · 中职专用</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2>📚 学习导航</h2>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <button class="nav-btn" data-section="origin">1. 扎染的由来</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn" data-section="tools">2. 扎染工具介绍</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn" data-section="production">3. 扎染制作</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn active" data-section="simulation">4. 虚拟操作</button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-section" id="origin">
+                <h2 class="section-title">📜 扎染的由来</h2>
+                <video class="section-video" src="1-youlai.mp4" controls></video>
+                <p style="margin-top:15px;">扎染是中国传统手工染色技艺，有着千年历史，是国家级非物质文化遗产之一。</p>
+            </div>
+
+            <div class="content-section" id="tools">
+                <h2 class="section-title">🧵 扎染工具介绍</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin: 20px 0; text-align:center;">
+                    <div>
+                        <img src="frx.png" style="width:100%; border-radius:10px; object-fit:cover; aspect-ratio:1/1;">
+                        <p style="margin-top:8px; font-size:15px;">缝纫线</p>
+                    </div>
+                    <div>
+                        <img src="jiaz.png" style="width:100%; border-radius:10px; object-fit:cover; aspect-ratio:1/1;">
+                        <p style="margin-top:8px; font-size:15px;">夹子</p>
+                    </div>
+                    <div>
+                        <img src="jiandao.png" style="width:100%; border-radius:10px; object-fit:cover; aspect-ratio:1/1;">
+                        <p style="margin-top:8px; font-size:15px;">剪刀</p>
+                    </div>
+                    <div>
+                        <img src="mianbu.png" style="width:100%; border-radius:10px; object-fit:cover; aspect-ratio:1/1;">
+                        <p style="margin-top:8px; font-size:15px;">棉布</p>
+                    </div>
+                    <div>
+                        <img src="ranliao.png" style="width:100%; border-radius:10px; object-fit:cover; aspect-ratio:1/1;">
+                        <p style="margin-top:8px; font-size:15px;">染料</p>
+                    </div>
+                </div>
+                <p style="margin-top:15px;">主要工具：白布、棉线、皮筋、夹子、染料、手套、水桶等。</p>
+            </div>
+
+            <div class="content-section" id="production">
+                <h2 class="section-title">🎨 扎染制作步骤</h2>
+                <video class="section-video" src="3-zhizuo.mp4" controls></video>
+                <p style="margin-top:15px;">步骤：折叠 → 捆扎 → 染色 → 晾晒 → 展开成品。</p>
+            </div>
+
+            <div class="content-section active" id="simulation">
+                <h2 class="section-title">🔮 虚拟扎染操作</h2>
+                <p>请按照步骤进行虚拟扎染：1.选择折叠方式 → 2.选择工具捆扎 → 3.染色 → 4.展开查看效果</p>
+                
+                <div class="simulation-area">
+                    <div class="control-panel">
+                        <div class="step-indicator">
+                            <div class="step active">1. 折叠</div>
+                            <div class="step">2. 捆扎</div>
+                            <div class="step">3. 染色</div>
+                            <div class="step">4. 展开</div>
+                        </div>
+                        
+                        <div class="fold-options">
+                            <div class="option-title">选择折叠方式：</div>
+                            <button class="fold-btn selected" data-fold="z-fold">Z形折（四层折叠）</button>
+                            <button class="fold-btn" data-fold="center-fold">中心折叠（抓起中心成三角形）</button>
+                        </div>
+                        
+                        <div class="tool-options">
+                            <div class="option-title">选择工具：</div>
+                            <button class="tool-btn" data-tool="thread">绳子工具</button>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="action-btn next" id="next-btn" disabled>下一步</button>
+                            <button class="action-btn" id="tie-btn" disabled>开始捆扎（按住鼠标拖动）</button>
+                            <button class="action-btn" id="dye-btn" disabled>染色</button>
+                            <button class="action-btn" id="expand-btn" disabled>展开布料</button>
+                            <button class="action-btn reset" onclick="location.reload()">重置</button>
+                        </div>
+                        
+                        <div class="status-info" id="status-info">请先选择工具</div>
+                    </div>
+                    
+                    <div class="fabric-area">
+                        <div class="fabric-container" id="fabric-container">
+                            <div class="fabric-base expanded" id="fabric"></div>
+                        </div>
+                        <div class="status-info" id="canvas-status">展开的正方形白布（300x300像素）</div>
+                    </div>
+                </div>
+                
+                <div class="instruction">
+                    <strong>操作提示：</strong><br>
+                    1. 选择折叠方式 → 2. 选择绳子工具 → 3. 下一步进入捆扎<br>
+                    4. 按住鼠标在布上画线 → 5. 下一步 → 6. 染色 → 7. 展开查看花纹<br>
+                    <strong>折叠效果说明：</strong><br>
+                    - Z形折：四层折叠，展开后线条重复出现<br>
+                    - 中心折叠：围绕中心旋转，展开呈环形花纹
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const foldAlgorithms = {
+            'z-fold': { name: 'Z形折', foldClass: 'z-fold', foldWidth: 75, foldHeight: 300 },
+            'center-fold': { name: '中心折叠', foldClass: 'center-fold', foldWidth: 200, foldHeight: 200 }
+        };
+        
+        const state = {
+            currentStep: 1, currentFold: 'z-fold', selectedTool: null,
+            isTying: false, isDrawing: false, startPoint: null, tempLine: null,
+            tieLines: [], rawLines: [], whiteAreas: [], isDyed: false, isExpanded: true
+        };
+        
+        const fabric = document.getElementById('fabric');
+        const fabricContainer = document.getElementById('fabric-container');
+        const nextBtn = document.getElementById('next-btn');
+        const tieBtn = document.getElementById('tie-btn');
+        const dyeBtn = document.getElementById('dye-btn');
+        const expandBtn = document.getElementById('expand-btn');
+        const steps = document.querySelectorAll('.step');
+        
+        // 折叠选择
+        document.querySelectorAll('.fold-btn').forEach(btn => {
+            btn.addEventListener('click', function(){
+                document.querySelectorAll('.fold-btn').forEach(b=>b.classList.remove('selected'));
+                this.classList.add('selected');
+                state.currentFold = this.dataset.fold;
+                if(state.selectedTool) nextBtn.disabled = false;
+            });
+        });
+        
+        // 工具选择
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', function(){
+                document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('selected'));
+                this.classList.add('selected');
+                state.selectedTool = this.dataset.tool;
+                nextBtn.disabled = false;
+            });
+        });
+        
+        // 下一步
+        nextBtn.addEventListener('click', function(){
+            if(state.currentStep === 1){
+                clearTieLines(); clearWhiteAreas();
+                fabric.style.backgroundColor = 'white';
+                fabric.classList.remove('expanded');
+                fabric.classList.add(state.currentFold);
+                state.currentStep = 2;
+                updateStep(2);
+                nextBtn.disabled = true;
+                tieBtn.disabled = false;
+            } 
+            else if(state.currentStep === 2){
+                state.currentStep = 3; 
+                updateStep(3);
+                dyeBtn.disabled = false;
+                
+                // ✅ 点下一步后，才变灰、禁用
+                tieBtn.disabled = true;
+                tieBtn.textContent = "开始捆扎（按住鼠标拖动）";
+                tieBtn.style.background = "#48bb78";
+            } 
+            else if(state.currentStep === 3){
+                state.currentStep = 4; 
+                updateStep(4);
+                expandBtn.disabled = false;
+            } 
+            else if(state.currentStep === 4){
+                fabric.classList.add('expanded');
+                generatePatternFromDrawing();
+                state.tieLines.forEach(line=>line.style.display='none');
+                state.whiteAreas.forEach(a=>a.style.display='none');
+                expandBtn.disabled = true; 
+                nextBtn.disabled = true;
+            }
+        });
+        
+        // 捆扎画线
+        tieBtn.addEventListener('click', function(){
+            state.isTying = true;
+            // ✅ 一直保持橙色！直到点下一步
+            tieBtn.textContent = "捆扎中...";
+            tieBtn.style.background = "#ed8936";
+            tieBtn.disabled = false; // 保持可点击状态，只视觉锁定
+
+            fabricContainer.addEventListener('mousedown', onMouseDown);
+            fabricContainer.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        
+        function onMouseDown(e){
+            if(!state.isTying) return;
+            state.isDrawing = true;
+
+            const containerRect = fabricContainer.getBoundingClientRect();
+            const fabricRect = fabric.getBoundingClientRect();
+            const fabricOffsetX = fabricRect.left - containerRect.left;
+            const fabricOffsetY = fabricRect.top - containerRect.top;
+
+            const mouseXInContainer = e.clientX - containerRect.left;
+            const mouseYInContainer = e.clientY - containerRect.top;
+
+            const inBoundsX = mouseXInContainer >= fabricOffsetX && mouseXInContainer <= fabricOffsetX + fabric.offsetWidth;
+            const inBoundsY = mouseYInContainer >= fabricOffsetY && mouseYInContainer <= fabricOffsetY + fabric.offsetHeight;
+            
+            if (!inBoundsX || !inBoundsY) {
+                state.isDrawing = false;
+                return;
+            }
+
+            state.startPoint = {
+                x: mouseXInContainer - fabricOffsetX,
+                y: mouseYInContainer - fabricOffsetY
+            };
+        }
+        
+        function onMouseMove(e){
+            if(!state.isDrawing) return;
+
+            const containerRect = fabricContainer.getBoundingClientRect();
+            const fabricRect = fabric.getBoundingClientRect();
+            const fabricOffsetX = fabricRect.left - containerRect.left;
+            const fabricOffsetY = fabricRect.top - containerRect.top;
+
+            const mouseXInContainer = e.clientX - containerRect.left;
+            const mouseYInContainer = e.clientY - containerRect.top;
+
+            const currentX = mouseXInContainer - fabricOffsetX;
+            const currentY = mouseYInContainer - fabricOffsetY;
+
+            if(state.tempLine) state.tempLine.remove();
+
+            const dx = currentX - state.startPoint.x;
+            const dy = currentY - state.startPoint.y;
+            const len = Math.hypot(dx, dy);
+            const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            const line = document.createElement('div');
+            line.className = 'temp-line';
+            line.style.width = len + 'px';
+            line.style.height = '4px';
+            line.style.left = fabricOffsetX + state.startPoint.x + 'px';
+            line.style.top = fabricOffsetY + state.startPoint.y + 'px';
+            line.style.transform = `rotate(${ang}deg)`;
+            line.style.transformOrigin = '0 0';
+            fabricContainer.appendChild(line);
+            state.tempLine = line;
+        }
+        
+        function onMouseUp(e){
+            if(!state.isDrawing) return;
+            state.isDrawing = false;
+            if(state.tempLine) state.tempLine.remove();
+
+            const containerRect = fabricContainer.getBoundingClientRect();
+            const fabricRect = fabric.getBoundingClientRect();
+            const fabricOffsetX = fabricRect.left - containerRect.left;
+            const fabricOffsetY = fabricRect.top - containerRect.top;
+
+            const mouseXInContainer = e.clientX - containerRect.left;
+            const mouseYInContainer = e.clientY - containerRect.top;
+
+            const endX = mouseXInContainer - fabricOffsetX;
+            const endY = mouseYInContainer - fabricOffsetY;
+
+            const dx = endX - state.startPoint.x;
+            const dy = endY - state.startPoint.y;
+            const len = Math.hypot(dx, dy);
+            const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            const line = document.createElement('div');
+            line.className = 'tie-line';
+            line.style.width = len + 'px';
+            line.style.height = '4px';
+            line.style.left = fabricOffsetX + state.startPoint.x + 'px';
+            line.style.top = fabricOffsetY + state.startPoint.y + 'px';
+            line.style.transform = `rotate(${ang}deg)`;
+            line.style.transformOrigin = '0 0';
+            fabricContainer.appendChild(line);
+            state.tieLines.push(line);
+            state.rawLines.push({
+                x1: state.startPoint.x, y1: state.startPoint.y,
+                x2: endX, y2: endY
+            });
+            nextBtn.disabled = false;
+        }
+        
+        // 染色
+        dyeBtn.addEventListener('click', function(){
+            state.tieLines.forEach(line=>{
+                const w = line.cloneNode(true);
+                w.className = 'white-area';
+                w.style.height = '8px';
+                w.style.background = 'white';
+                fabricContainer.appendChild(w);
+                state.whiteAreas.push(w);
+            });
+            fabric.style.backgroundColor = '#63b3ed';
+            state.isDyed = true;
+            dyeBtn.disabled = true;
+        });
+        
+        // 展开
+        expandBtn.addEventListener('click', function(){
+            fabric.classList.add('expanded');
+            generatePatternFromDrawing();
+            state.tieLines.forEach(line=>line.style.display='none');
+            state.whiteAreas.forEach(a=>a.style.display='none');
+            expandBtn.disabled = true;
+        });
+        
+        // 生成花纹
+        function generatePatternFromDrawing(){
+            const canvas = document.createElement('canvas');
+            canvas.width = 300; canvas.height = 300;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#63b3ed';
+            ctx.fillRect(0,0,300,300);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 6;
+            
+            if(state.currentFold === 'z-fold'){
+                state.rawLines.forEach(p=>{
+                    for(let i=0;i<4;i++){
+                        ctx.beginPath();
+                        ctx.moveTo(i*75 + p.x1, p.y1);
+                        ctx.lineTo(i*75 + p.x2, p.y2);
+                        ctx.stroke();
+                    }
+                });
+            } else {
+                state.rawLines.forEach(p=>{
+                    for(let i=0;i<12;i++){
+                        const rad = i*30*Math.PI/180;
+                        const x1 = 150 + p.x1*Math.cos(rad) - p.y1*Math.sin(rad);
+                        const y1 = 150 + p.x1*Math.sin(rad) + p.y1*Math.cos(rad);
+                        const x2 = 150 + p.x2*Math.cos(rad) - p.y2*Math.sin(rad);
+                        const y2 = 150 + p.x2*Math.sin(rad) + p.y2*Math.cos(rad);
+                        ctx.beginPath();
+                        ctx.moveTo(x1,y1);
+                        ctx.lineTo(x2,y2);
+                        ctx.stroke();
+                    }
+                });
+            }
+            fabric.style.backgroundImage = `url(${canvas.toDataURL()})`;
+            fabric.style.backgroundColor = 'transparent';
+        }
+        
+        function clearTieLines(){
+            state.tieLines.forEach(l=>l.remove());
+            state.tieLines = [];
+        }
+        
+        function clearWhiteAreas(){
+            state.whiteAreas.forEach(a=>a.remove());
+            state.whiteAreas = [];
+        }
+        
+        function updateStep(step){
+            steps.forEach((s,i)=>s.classList.toggle('active', i<step));
+        }
+        
+        // 切换导航暂停视频
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('video').forEach(v => v.pause());
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(btn.dataset.section).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
